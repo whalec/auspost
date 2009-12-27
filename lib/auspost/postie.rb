@@ -33,6 +33,20 @@ module Auspost
         end
       end
     end
+    
+    class Suburb
+      def initialize(attrs)
+        @suburb   = attrs[:suburb].downcase
+        @postcode = attrs[:postcode].to_i
+        @state    = attrs[:state].downcase
+      end
+      
+      def eql?(attrs)
+        attrs[:suburb].downcase == @suburb &&
+          attrs[:postcode].to_i == @postcode &&
+            attrs[:state].downcase == @state
+      end
+    end
 
 
     # This is the method that returns whether a location is correct or not.
@@ -61,7 +75,7 @@ module Auspost
     end
     
     def get(url)
-      @content = check_cache || get_and_cache(url)
+      @results = check_cache || get_and_cache(url)
     end
     
     def check_cache
@@ -69,9 +83,9 @@ module Auspost
     end
     
     def get_and_cache(url)
-      object  = open(url)
-      @table  = Nokogiri::HTML(object).xpath('//table[3]/tr/td[2]/table/tr/td/font/table/tr[2]/td/table/tr')
-      content = stringify_results
+      object    = open(url)
+      @table    = Nokogiri::HTML(object).xpath('//table[3]/tr/td[2]/table/tr/td/font/table/tr[2]/td/table/tr')
+      content   = map_results
       cache.write(@postcode, content)
       content
     end
@@ -84,12 +98,21 @@ module Auspost
       @postcode = attrs[:postcode].to_s
     end
     
-    def stringify_results
-      @table.map{|row| row.content.downcase }.join(" ")
+    def map_results
+      @table.map do |row|
+        content = row.content.strip if row.content.include?("LOCATION:")
+        if content
+          s = content.index("LOCATION: ")
+          e = content.index(",")
+          suburb = content[s..e-1].split(" ").last
+          state  = content[e+2..e+4]
+          final = Suburb.new(:suburb => suburb, :state => state, :postcode => @postcode)
+        end
+      end
     end
     
     def check_results?(attrs)
-      @content.include?(attrs[:suburb]) && @content.include?(attrs[:state]) && @content.include?(@postcode)
+      @results.map{|suburb| suburb.eql?(attrs)}.include?(true)
     end
 
   end

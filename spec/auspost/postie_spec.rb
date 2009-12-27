@@ -17,6 +17,10 @@ describe Postie do
     location?({:postcode => "2038", :suburb => "dale", :state => "NSW"}).should_not eql(true)
   end
   
+  it "shouldn't substring search" do
+    location?(:postcode => "2038", :suburb => "Annandale", :state => "N")
+  end
+  
   it "should raise if there's not a postcode" do
     lambda { location?(:suburb => "Surry Hills", :state => "FOO") }.should raise_error(ArgumentError)
   end
@@ -40,9 +44,11 @@ describe Postie, " with cached" do
   before do
     @io = mock(IO)
     @string = mock(String)
+    @array  = mock(Array)
     Postie::Cache.should_receive(:new).and_return(@io)
     @io.should_receive(:read).with("2038").and_return(@string)
-    @string.should_receive(:include?).at_least(:once).and_return(true)
+    @string.should_receive(:map).at_least(:once).and_return(@array)
+    @array.should_receive(:include?).with(true).and_return(true)
   end
   
   it "should cache a result" do
