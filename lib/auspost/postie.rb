@@ -4,8 +4,11 @@ module Auspost
   module Postie
     
     class Cache
+      
+      # Over ride these two class variables to change your memcache settings
       @@memcache_host = "localhost"
-      @@memcache_port = "11211"      
+      @@memcache_port = "11211"
+      
       def initialize
         if Object.const_defined? :Rails
           Rails.cache
@@ -31,6 +34,14 @@ module Auspost
       end
     end
 
+
+    # This is the method that returns whether a location is correct or not.
+    # It requires three attributes
+    # :postcode, :suburb & :state such as
+    # location?(:postcode => 2038, :suburb => "Annandale", :state => "NSW") #=> true
+    # location?(:postcode => 2010, :suburb => "Annandale", :state => "NSW") #=> false
+    # The results of a request to a given postcode is cached in memcached if available or in
+    # your Rails.cache store if you're in a Rails project.
     def location?(attrs = {})
       map_attributes!(attrs)
       url       = "http://www1.auspost.com.au/postcodes/index.asp?Locality=&sub=1&State=&Postcode=#{CGI::escape(@postcode)}&submit1=Search"
@@ -40,9 +51,9 @@ module Auspost
     
 
     private
-    
+
     def cache
-      @cache || set_cache 
+      @cache ||= set_cache 
     end
     
     def set_cache
