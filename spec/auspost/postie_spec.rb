@@ -5,16 +5,32 @@ describe Postie do
   include Postie
   
   it "should find Annandale and return true" do
-    check_location_exists({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).should eql(true)
+    location?({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).should eql(true)
   end
   
   it "shouldn't find that Surry Hills is in the 2000 postcode" do
-    check_location_exists({:postcode => "2000", :suburb => "Surry Hills", :state => "QLD"}).should_not eql(true)
+    location?({:postcode => "2000", :suburb => "Surry Hills", :state => "QLD"}).should_not eql(true)
+  end
+  
+  it "should raise if there's not a postcode" do
+    lambda { location?(:suburb => "Surry Hills", :state => "FOO") }.should raise_error(ArgumentError)
+  end
+  
+  it "should raise if there's not a suburb" do
+    lambda { location?(:postcode => 2038, :state => "FOO") }.should raise_error(ArgumentError)
+  end
+  
+  it "should raise if there's not a state" do
+    lambda { location?(:suburb => "Surry Hills", :postcode => 2038) }.should raise_error(ArgumentError)
+  end
+  
+  it "should accept an Integer for the postcode" do
+    location?({:postcode => 2038, :suburb => "Annandale", :state => "NSW"}).should eql(true)
   end
   
 end
 
-describe Postie, " with memcached" do
+describe Postie, " with cached" do
   include Postie
   before do
     @io = mock(IO)
@@ -25,6 +41,6 @@ describe Postie, " with memcached" do
   end
   
   it "should cache a result" do
-    check_location_exists({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).should eql(true)
+    location?({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).should eql(true)
   end  
 end

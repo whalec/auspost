@@ -13,7 +13,15 @@ ActiveRecord Validations - validates_location :suburb, :postcode, :state, :on =>
 
 == SYNOPSIS:
 
-  FIXME (code sample of usage)
+  class Foo < ActiveRecord:Base
+    include Auspost::Postie
+    
+    before_save :check_address
+    
+    def check_address
+      location?(:postcode => 2038, :suburb => "Annandale", :state => "NSW")
+    end
+  end
 
 == REQUIREMENTS:
 
