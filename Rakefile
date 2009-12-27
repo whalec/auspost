@@ -1,4 +1,3 @@
-
 begin
   require 'bones'
 rescue LoadError
@@ -12,10 +11,11 @@ task :default => 'test:run'
 task 'gem:release' => 'test:run'
 
 Bones {
-  name  'auspost'
+  name     'auspost'
   authors  'Cameron Barrie'
-  email  'camwritescode@gmail.com'
-  url  'http://www.camwritescode.com/auspost'
+  email    'camwritescode@gmail.com'
+  dependencies ['nokogiri', "memcache-client"]
+  url      'http://www.camwritescode.com/auspost'
   version  Auspost::VERSION
 }
 
