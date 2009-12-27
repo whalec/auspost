@@ -12,6 +12,11 @@ describe Postie do
     location?({:postcode => "2000", :suburb => "Surry Hills", :state => "QLD"}).should_not eql(true)
   end
   
+  # Testing this to ensure sub-strings don't pass as true
+  it "shoudn't find dale in 2038" do
+    location?({:postcode => "2038", :suburb => "dale", :state => "NSW"}).should_not eql(true)
+  end
+  
   it "should raise if there's not a postcode" do
     lambda { location?(:suburb => "Surry Hills", :state => "FOO") }.should raise_error(ArgumentError)
   end
