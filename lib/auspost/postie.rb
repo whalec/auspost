@@ -13,22 +13,30 @@ module Auspost
       end
       
       def write(key, object)
-        @cache.add(key, object) if @cache.servers.map{|s| s.alive?}.include?(true)
+        if @cache
+          @cache.add(key, object) if @cache.servers.map{|s| s.alive?}.include?(true)
+        else
+          Rails.cache.write(key, object)
+        end
       end
       
       def read(key)
-        @cache.get(key) if @cache.servers.map{|s| s.alive?}.include?(true)
+        if @cache
+          @cache.get(key) if @cache.servers.map{|s| s.alive?}.include?(true)
+        else
+          Rails.cache.read(key)
+        end
       end
     end
 
     def check_location_exists(attrs = {})
       map_attributes!(attrs)
-      url       = "http://www1.auspost.com.au/postcodes/index.asp?Locality=#{CGI::escape(attrs[:suburb])}&sub=1&State=#{CGI::escape(attrs[:state])}&Postcode=#{CGI::escape(attrs[:postcode])}&submit1=Search"
+      url       = "http://www1.auspost.com.au/postcodes/index.asp?Locality=&sub=1&State=&Postcode=#{CGI::escape(attrs[:postcode])}&submit1=Search"
       @content  = get(url)
       check_results?(attrs)
     end
     
-    
+
     private
     
     def cache

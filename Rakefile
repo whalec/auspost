@@ -15,7 +15,7 @@ Bones {
   name  'auspost'
   authors  'Cameron Barrie'
   email  'camwritescode@gmail.com'
-  url  'www.camwritescode.com/auspost-gem'
+  url  'http://www.camwritescode.com/auspost'
   version  Auspost::VERSION
 }
 

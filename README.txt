@@ -18,6 +18,7 @@ ActiveRecord Validations - validates_location :suburb, :postcode, :state, :on =>
 == REQUIREMENTS:
 
 Nokogiri - For teh XML parsing. 
+Memcache Client - For caching results
 
 == INSTALL:
 
