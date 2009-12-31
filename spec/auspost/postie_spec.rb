@@ -41,7 +41,8 @@ end
 
 describe Postie, " with cached" do
   include Postie
-  before do
+  
+  it "should cache a result" do
     @io = mock(IO)
     @string = mock(String)
     @array  = mock(Array)
@@ -49,9 +50,6 @@ describe Postie, " with cached" do
     @io.should_receive(:read).with("2038").and_return(@string)
     @string.should_receive(:map).at_least(:once).and_return(@array)
     @array.should_receive(:include?).with(true).and_return(true)
-  end
-  
-  it "should cache a result" do
     location?({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).should eql(true)
   end  
 end
