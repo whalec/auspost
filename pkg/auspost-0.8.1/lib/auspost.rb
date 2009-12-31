@@ -45,4 +45,4 @@ end  # module Auspost
 require 'open-uri'
 require 'nokogiri'
 require 'memcache'
-Auspost.require_all_libs_relative_to(__FILE__)
+require 'auspost/postie'

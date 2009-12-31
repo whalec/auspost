@@ -20,14 +20,6 @@ module Auspost
           def validate_location(*args)
             @@valid_attributes.merge!(args.extract_options!)
           end
-          
-          
-          private
-          
-          def set_attributes
-            
-          end
-
 
         end
       end

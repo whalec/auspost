@@ -1,8 +1,24 @@
 require File.join(File.dirname(__FILE__), "../../spec_helper")
+require File.join(File.dirname(__FILE__), "../../fixtures/postal_worker")
 
-describe PostalWorker do
+describe PostalWorker, "without auspost/active_record required" do
   
-  before do 
+  it "should not respond to a method validate_location" do
+    PostalWorker.should_not respond_to(:validate_location)
+  end
+  
+end
+
+
+describe PostalWorker, "with auspost/active_record required" do
+
+  # require needs to be in the before block, otherwise it's called when the file is required or the describe blocks are called.
+  # causing failure to the above spec
+  before(:all) do
+    require 'auspost/active_record'
+  end
+
+  before do
     PostalWorker.validate_location
     @valid_attributes = {:address => "William St", :suburb => "Annandale", :postcode => "2038", :state => "NSW"}
     @invalid_attributes = {:address => "William St", :suburb => "Annandale", :postcode => "2000", :state => "VIC"}
