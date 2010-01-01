@@ -8,18 +8,39 @@ module Auspost
           base.extend ClassMethods
         end
         
-        module ClassMethods
+        
+        def validate_location
+          # @@valid_attributes.merge!(args.extract_options!)
+          result = location?(map_attributes)
+          if !result
+            errors.add_to_base("Not a valid address")
+          end
+        end
 
-          @@valid_attributes = {
-            :state    => :st,
-            :postcode => :postcode,
-            :suburb   => :suburb
+        protected
+
+        def map_attributes
+          { 
+            :state    => self.send(:state),
+            :postcode => self.send(:postcode),
+            :suburb   => self.send(:suburb)
           }
+        end
+
+
+        module ClassMethods
+          
 
           # I'll add some validations here...
           def validate_location(*args)
-            @@valid_attributes.merge!(args.extract_options!)
+            @@valid_attributes = {
+              :state    => :state,
+              :postcode => :postcode,
+              :suburb   => :suburb
+            }
+            validate :validate_location
           end
+
 
         end
       end
