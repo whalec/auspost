@@ -14,7 +14,7 @@ ActiveRecord Validations - validates_location
 
 == SYNOPSIS:
 
-  class Foo < ActiveRecord:Base
+  class Foo < ActiveRecord::Base
     include Auspost::Postie
     
     before_save :check_address
@@ -22,6 +22,15 @@ ActiveRecord Validations - validates_location
     def check_address
       location?(:postcode => 2038, :suburb => "Annandale", :state => "NSW")
     end
+  end
+  
+  or 
+  
+  require 'auspost/active_record'
+  class Foo < ActiveRecord::Base
+  
+    validate_location
+  
   end
 
 == REQUIREMENTS:
