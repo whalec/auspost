@@ -41,26 +41,65 @@ module Auspost
         @state    = attrs[:state].downcase
       end
       
-      def eql?(attrs)
-        attrs[:suburb].downcase == @suburb &&
-          attrs[:postcode].to_i == @postcode &&
-            attrs[:state].downcase == @state
+      def suburb?(attrs)
+        attrs[:suburb].downcase == @suburb
       end
+      
+      def state?(attrs)
+        attrs[:state].downcase == @state
+      end
+      
+      def postcode?(attrs)
+        attrs[:postcode].to_i == @postcode
+      end
+      
+      def eql?(attrs)
+        suburb?(attrs) && postcode?(attrs) && state?(attrs)
+      end
+      
+      def to_i(attrs)
+        (suburb?(attrs) ? 1 : 0) + 
+          (state?(attrs) ? 1 : 0) +
+            (postcode?(attrs) ? 1 : 0)
+      end
+    end
+    
+    class Result
+      
+      attr_reader :status, :errors
+      
+      def initialize(status)
+        @status = status
+        @errors = [] if !@status
+      end
+      
+    end
+    
+    class Error
+      
+      attr_reader :accessor, :message
+      
+      def initialize(accessor, message)
+        @accessor = accessor
+        @message  = message
+      end
+      
     end
 
 
     # This is the method that returns whether a location is correct or not.
     # It requires three attributes
     # :postcode, :suburb & :state such as
-    # location?(:postcode => 2038, :suburb => "Annandale", :state => "NSW") #=> true
-    # location?(:postcode => 2010, :suburb => "Annandale", :state => "NSW") #=> false
+    # location?(:postcode => 2038, :suburb => "Annandale", :state => "NSW") #=> Result#status => true
+    # location?(:postcode => 2010, :suburb => "Annandale", :state => "NSW") #=> Result#status => false 
+    # Result#errors => Error#accessor => :suburb && Error#message => "Annandale does not match 2010 postcode"
     # The results of a request to a given postcode is cached in memcached if available or in
     # your Rails.cache store if you're in a Rails project.
     def location?(attrs = {})
       map_attributes!(attrs)
       url       = "http://www1.auspost.com.au/postcodes/index.asp?Locality=&sub=1&State=&Postcode=#{CGI::escape(@postcode)}&submit1=Search"
       @content  = get(url)
-      check_results?(attrs)
+      check_results(attrs)
     end
     
 
@@ -86,6 +125,7 @@ module Auspost
       object    = open(url)
       @table    = Nokogiri::HTML(object).xpath('//table[3]/tr/td[2]/table/tr/td/font/table/tr[2]/td/table/tr')
       content   = map_results
+      content.delete_if{|x| x.nil?}
       cache.write(@postcode, content)
       content
     end
@@ -111,8 +151,17 @@ module Auspost
       end
     end
     
-    def check_results?(attrs)
-      @results.map{|suburb| suburb.eql?(attrs)}.include?(true)
+    def check_results(attrs)
+      if @results.map{|suburb| suburb.eql?(attrs)}.include?(true)
+        Result.new(true)
+      else
+        result = Result.new(false)
+        error_count = @results.map{|r| r.to_i(attrs) } #.sort.reverse.first # Get the first one with the least number of errors
+        main_error = @results[error_count.index(error_count.sort.first)]
+        result.errors << Error.new(:suburb, "Does not match postcode") if !main_error.suburb?(attrs)
+        result.errors << Error.new(:state, "Does not match postcode") if !main_error.state?(attrs)
+        result
+      end
     end
 
   end

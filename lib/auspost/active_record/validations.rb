@@ -17,8 +17,10 @@ module Auspost
         
         def validate_location(*args)
           result = location?(map_attributes)
-          if !result
-            errors.add(:state, "Does not match postcode")
+          if result && !result.status
+            result.errors.each do |error|
+              errors.add(error.accessor, error.message)
+            end
           end
         end
         

@@ -5,20 +5,20 @@ describe Postie do
   include Postie
   
   it "should find Annandale and return true" do
-    location?({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).should eql(true)
+    location?({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).status.should eql(true)
   end
   
   it "shouldn't find that Surry Hills is in the 2000 postcode" do
-    location?({:postcode => "2000", :suburb => "Surry Hills", :state => "QLD"}).should_not eql(true)
+    location?({:postcode => "2000", :suburb => "Surry Hills", :state => "QLD"}).status.should_not eql(true)
   end
   
   # Testing this to ensure sub-strings don't pass as true
   it "shoudn't find dale in 2038" do
-    location?({:postcode => "2038", :suburb => "dale", :state => "NSW"}).should_not eql(true)
+    location?({:postcode => "2038", :suburb => "dale", :state => "NSW"}).status.should_not eql(true)
   end
   
   it "shouldn't substring search" do
-    location?(:postcode => "2038", :suburb => "Annandale", :state => "N")
+    location?(:postcode => "2038", :suburb => "Annandale", :state => "N").status.should_not eql(true)
   end
   
   it "should raise if there's not a postcode" do
@@ -34,7 +34,7 @@ describe Postie do
   end
   
   it "should accept an Integer for the postcode" do
-    location?({:postcode => 2038, :suburb => "Annandale", :state => "NSW"}).should eql(true)
+    location?({:postcode => 2038, :suburb => "Annandale", :state => "NSW"}).status.should eql(true)
   end
   
 end
@@ -50,6 +50,6 @@ describe Postie, " with cached" do
     @io.should_receive(:read).with("2038").and_return(@string)
     @string.should_receive(:map).at_least(:once).and_return(@array)
     @array.should_receive(:include?).with(true).and_return(true)
-    location?({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).should eql(true)
+    location?({:postcode => "2038", :suburb => "Annandale", :state => "NSW"}).status.should eql(true)
   end  
 end

@@ -42,12 +42,14 @@ describe PostalWorker, "with auspost/active_record required" do
     @worker = PostalWorker.new(@invalid_attributes)
     @worker.should_not be_valid
     @worker.errors.on(:state).should eql("Does not match postcode")
+    @worker.errors.on(:suburb).should eql("Does not match postcode")
   end
   
   it "should return a useful error message on the suburb" do
     @worker = PostalWorker.new(@valid_attributes.merge(:suburb => "Rozelle"))
     @worker.should_not be_valid
     @worker.errors.on(:suburb).should eql("Does not match postcode")
+    @worker.errors.on(:state).should be_nil
   end
     
 
