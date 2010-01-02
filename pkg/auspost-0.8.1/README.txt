@@ -1,6 +1,6 @@
 auspost
     by Cameron Barrie
-    http://www.camwritescode.com/auspost
+    http://wiki.github.com/whalec/auspost
 
 == DESCRIPTION:
 
@@ -9,7 +9,10 @@ Also add's validation methods to ActiveRecord Objects to allow you to validate t
 
 == FEATURES/PROBLEMS:
 
-ActiveRecord Validations - validates_location :suburb, :postcode, :state, :on => [:create, :change]
+ActiveRecord Validations - validates_location
+
+Currently it only returns true or false, and just add's the error "is not valid" to the address accessor.
+But there's better validation coming soon... Watch this space.
 
 == SYNOPSIS:
 
@@ -25,18 +28,27 @@ ActiveRecord Validations - validates_location :suburb, :postcode, :state, :on =>
 
 == REQUIREMENTS:
 
-Nokogiri - For teh XML parsing. 
-Memcache Client - For caching results
+Nokogiri - For teh XML parsing.
 
 == INSTALL:
 
 sudo gem install auspost
 
+== TODO:
+
+Validations for Active Record should take more options, including mapping the suburb, postcode and state to other columns
+
+validate_location :suburb => :home, :state => "state.name", :on => [:create, :change], :if => lambda { !home.blank? && !postcode.blank? }
+
+Add validation errors to individual accessors, i.e:
+error_message_for :suburb #=> "Does not match postcode"
+error_message_for :state  #=> "Does not match postcode"
+
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2009 FIXME (different license?)
+Copyright (c) 2009
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

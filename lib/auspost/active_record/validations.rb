@@ -4,41 +4,47 @@ module Auspost
     module ActiveRecord
       module Validations
         
+        @@valid_attributes = {
+          :state    => :state,
+          :postcode => :postcode,
+          :suburb   => :suburb
+        }
+        
         def self.included(base)
           base.extend ClassMethods
         end
         
         
-        def validate_location
-          # @@valid_attributes.merge!(args.extract_options!)
+        def validate_location(*args)
           result = location?(map_attributes)
           if !result
-            errors.add_to_base("Not a valid address")
+            errors.add(:state, "Does not match postcode")
           end
+        end
+        
+        def valid_attributes
+          @@valid_attributes
         end
 
         protected
 
         def map_attributes
           { 
-            :state    => self.send(:state),
-            :postcode => self.send(:postcode),
-            :suburb   => self.send(:suburb)
+            :state    => self.send(@@valid_attributes[:state]),
+            :postcode => self.send(@@valid_attributes[:postcode]),
+            :suburb   => self.send(@@valid_attributes[:suburb])
           }
         end
 
 
         module ClassMethods
           
+          include Validations
 
           # I'll add some validations here...
           def validate_location(*args)
-            @@valid_attributes = {
-              :state    => :state,
-              :postcode => :postcode,
-              :suburb   => :suburb
-            }
-            validate :validate_location
+            valid_attributes.update(args.extract_options!)
+            validate :validate_location, valid_attributes
           end
 
 

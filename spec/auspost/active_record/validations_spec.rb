@@ -16,10 +16,10 @@ describe PostalWorker, "with auspost/active_record required" do
   # causing failure to the above spec
   before(:all) do
     require 'auspost/active_record'
+    PostalWorker.validate_location
   end
 
   before do
-    PostalWorker.validate_location
     @valid_attributes = {:address => "William St", :suburb => "Annandale", :postcode => "2038", :state => "NSW"}
     @invalid_attributes = {:address => "William St", :suburb => "Annandale", :postcode => "2000", :state => "VIC"}
   end
@@ -30,12 +30,26 @@ describe PostalWorker, "with auspost/active_record required" do
   
   it "should not be valid" do
     @worker = PostalWorker.new(@invalid_attributes)
-    @worker.should_not be_valid    
+    @worker.should_not be_valid
   end
   
   it "should validate an address" do
     @worker = PostalWorker.new(@valid_attributes)
     @worker.should be_valid
   end
+  
+  it "should return a useful error message on the state" do
+    @worker = PostalWorker.new(@invalid_attributes)
+    @worker.should_not be_valid
+    @worker.errors.on(:state).should eql("Does not match postcode")
+  end
+  
+  it "should return a useful error message on the suburb" do
+    @worker = PostalWorker.new(@valid_attributes.merge(:suburb => "Rozelle"))
+    @worker.should_not be_valid
+    @worker.errors.on(:suburb).should eql("Does not match postcode")
+  end
+    
+
   
 end
