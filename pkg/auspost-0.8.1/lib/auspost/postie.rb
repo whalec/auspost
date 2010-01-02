@@ -46,7 +46,7 @@ module Auspost
       end
       
       def state?(attrs)
-        attrs[:state].downcase == @state
+        attrs[:state].downcase == @state.downcase
       end
       
       def postcode?(attrs)
@@ -77,11 +77,10 @@ module Auspost
     
     class Error
       
-      attr_reader :accessor, :message
+      attr_reader :accessor
       
-      def initialize(accessor, message)
+      def initialize(accessor)
         @accessor = accessor
-        @message  = message
       end
       
     end
@@ -103,7 +102,7 @@ module Auspost
     end
     
 
-    private
+    protected
 
     def cache
       @cache ||= set_cache 
@@ -155,13 +154,17 @@ module Auspost
       if @results.map{|suburb| suburb.eql?(attrs)}.include?(true)
         Result.new(true)
       else
-        result = Result.new(false)
-        error_count = @results.map{|r| r.to_i(attrs) } #.sort.reverse.first # Get the first one with the least number of errors
-        main_error = @results[error_count.index(error_count.sort.first)]
-        result.errors << Error.new(:suburb, "Does not match postcode") if !main_error.suburb?(attrs)
-        result.errors << Error.new(:state, "Does not match postcode") if !main_error.state?(attrs)
-        result
+        generate_result_with_errors(attrs)
       end
+    end
+    
+    def generate_result_with_errors(attrs)
+      result = Result.new(false)
+      error_count = @results.map{|r| r.to_i(attrs) }
+      main_error = @results[error_count.index(error_count.sort.last)]
+      result.errors << Error.new(:suburb) if !main_error.suburb?(attrs)
+      result.errors << Error.new(:state) if !main_error.state?(attrs)
+      result
     end
 
   end

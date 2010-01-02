@@ -11,8 +11,6 @@ Also add's validation methods to ActiveRecord Objects to allow you to validate t
 
 ActiveRecord Validations - validates_location
 
-Currently it only returns true or false, and just add's the error "is not valid" to the address accessor.
-But there's better validation coming soon... Watch this space.
 
 == SYNOPSIS:
 
@@ -39,10 +37,6 @@ sudo gem install auspost
 Validations for Active Record should take more options, including mapping the suburb, postcode and state to other columns
 
 validate_location :suburb => :home, :state => "state.name", :on => [:create, :change], :if => lambda { !home.blank? && !postcode.blank? }
-
-Add validation errors to individual accessors, i.e:
-error_message_for :suburb #=> "Does not match postcode"
-error_message_for :state  #=> "Does not match postcode"
 
 == LICENSE:
 
