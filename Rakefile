@@ -7,15 +7,14 @@ end
 ensure_in_path 'lib'
 require 'auspost'
 
-task :default => 'test:run'
+task :default => 'spec'
 task 'gem:release' => 'test:run'
-
 Bones {
   name     'auspost'
   authors  'Cameron Barrie'
   email    'camwritescode@gmail.com'
-  dependencies ['nokogiri', "memcache-client"]
-  url      'http://www.camwritescode.com/auspost'
+  depend_on 'nokogiri'
+  url      'http://wiki.github.com/whalec/auspost'
   version  Auspost::VERSION
 }
 
